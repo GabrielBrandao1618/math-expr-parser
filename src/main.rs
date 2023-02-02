@@ -1,3 +1,8 @@
+mod parser;
+
+use parser::parse;
+
 fn main() {
-    println!("Hello, world!");
+    let result = parse("4 + 5 - 3 * 2");
+    println!("{result}");
 }

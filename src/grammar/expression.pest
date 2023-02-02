@@ -1,0 +1,13 @@
+number = @{ ASCII_DIGIT ~ ("." ~ ASCII_DIGIT*)?}
+
+operator = { add | sub | mul | div }
+add = { "+" }
+sub = { "-" }
+mul = { "*" }
+div = { "/" }
+
+operation = {operator ~ number}
+
+expression = {number ~ operation*}
+
+WHITESPACE = _{ " " | "\t" }
