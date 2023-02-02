@@ -65,5 +65,6 @@ mod test {
     fn should_calc() {
         assert_eq!(parse("5 + 9"), 14);
         assert_eq!(parse("5 + 9 - (5 - 1)"), 10);
+        assert_eq!(parse("-1 + 1"), 0);
     }
 }

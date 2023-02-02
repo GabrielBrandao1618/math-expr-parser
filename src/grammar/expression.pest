@@ -1,4 +1,5 @@
-number = @{ ASCII_DIGIT ~ ("." ~ ASCII_DIGIT*)?}
+number = @{ prefix? ~ ASCII_DIGIT ~ ("." ~ ASCII_DIGIT*)?}
+prefix = { "-" | "+" }
 
 operator = { add | sub | mul | div }
 add = { "+" }
