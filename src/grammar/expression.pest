@@ -6,8 +6,8 @@ sub = { "-" }
 mul = { "*" }
 div = { "/" }
 
-operation = {operator ~ number}
+operation = { operator ~ (number | expression) }
 
-expression = {number ~ operation*}
+expression = {"(" ~ number ~ operation* ~ ")"}
 
 WHITESPACE = _{ " " | "\t" }
