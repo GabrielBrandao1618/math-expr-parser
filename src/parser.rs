@@ -24,10 +24,10 @@ fn resolve_operation(acc: &i32, operation: Pair<Rule>) -> i32 {
     let number = extract_number_from_operation(operation).unwrap();
 
     match operator.as_rule() {
-        Rule::add => return acc + number,
-        Rule::sub => return acc - number,
-        Rule::mul => return acc * number,
-        Rule::div => return acc / number,
+        Rule::add => acc + number,
+        Rule::sub => acc - number,
+        Rule::mul => acc * number,
+        Rule::div => acc / number,
         _ => unreachable!(),
     }
 }
