@@ -42,8 +42,12 @@ fn extract_operator_from_operation(operation: Pair<Rule>) -> Option<Pair<Rule>> 
 }
 fn extract_number_from_operation(operation: Pair<Rule>) -> Option<i32> {
     for i in operation.into_inner() {
-        if i.as_rule() == Rule::number {
-            return Some(parse_number_value(i));
+        match i.as_rule() {
+            Rule::number => return Some(parse_number_value(i)),
+            Rule::expression => {
+                return Some(parse(i.as_str()));
+            }
+            _ => (),
         }
     }
     return None;
@@ -59,6 +63,7 @@ mod test {
     use super::parse;
     #[test]
     fn should_calc() {
-        assert_eq!(parse("5 + 9"), 14);
+        assert_eq!(parse("(5 + 9)"), 14);
+        assert_eq!(parse("(5 + 9 - (5 - 1))"), 10);
     }
 }
