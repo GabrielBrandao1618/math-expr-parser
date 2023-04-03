@@ -1,22 +1,22 @@
 use crate::tokens::{Operation, OperationPrimitive, Operator};
 
-pub fn resolve_operation(operation: &Operation) -> i32 {
-    let a: i32;
-    let b: i32;
-    match operation.a {
+pub fn resolve_operation(operation: &Operation) -> i64 {
+    let a: i64;
+    let b: i64;
+    match &operation.a {
         OperationPrimitive::Number { val } => {
-            a = val;
+            a = *val;
         }
         OperationPrimitive::Operation { val } => {
-            a = resolve_operation(val);
+            a = resolve_operation(&val);
         }
     }
-    match operation.b {
+    match &operation.b {
         OperationPrimitive::Number { val } => {
-            b = val;
+            b = *val;
         }
         OperationPrimitive::Operation { val } => {
-            b = resolve_operation(val);
+            b = resolve_operation(&val);
         }
     }
     match operation.operator {
@@ -63,13 +63,13 @@ mod tests {
         let op = Operation {
             a: OperationPrimitive::Number { val: 4 },
             b: OperationPrimitive::Operation {
-                val: &Operation {
+                val: Box::new(Operation {
                     a: OperationPrimitive::Number { val: 7 },
                     b: OperationPrimitive::Number { val: 4 },
                     operator: Operator::Mul,
-                },
+                }),
             },
-            operator: Operator::Add
+            operator: Operator::Add,
         };
         assert_eq!(resolve_operation(&op), 32);
     }

@@ -1,0 +1,12 @@
+Number = @{ ("-")? ~ ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* ~ ("." ~ ASCII_DIGIT+)? }
+
+Operator = { Add | Sub | Mul | Div }
+Add      = { "+" }
+Sub      = { "-" }
+Mul      = { "*" }
+Div      = { "/" }
+
+Operation = { Operator ~ (Number | "(" ~ Expr ~ ")") }
+Expr = { Number ~ Operation* }
+
+WHITESPACE = _{ " " }
