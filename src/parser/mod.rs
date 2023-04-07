@@ -32,12 +32,29 @@ pub fn parse_input(input: &str) -> Operation {
         }
     }
 
-    println!("{:#?}", ast_vec);
-    let first = ast_vec.clone().into_iter().nth(0).unwrap();
-    let second = ast_vec.clone().into_iter().nth(1).unwrap();
 
-    let merged = merge_operation_primitives(first, second);
-    println!("{:#?}", merged);
+    for (i, op) in ast_vec.clone().iter().enumerate() {
+        match op {
+            OperationPrimitive::Operation { val } => {
+                if val.operator == Operator::Div || val.operator == Operator::Mul {
+                    let previous_operation = &ast_vec[i - 1];
+                    let merged_operators = merge_operation_primitives(
+                        previous_operation,
+                        &OperationPrimitive::Operation {
+                            val: val.to_owned(),
+                        },
+                    );
+                    let mut new_vec = ast_vec.clone();
+                    new_vec.splice(i-1..i+1, vec![merged_operators]);
+                    ast_vec = new_vec;
+
+                }
+            }
+            OperationPrimitive::Number { .. } => ()
+        }
+    }
+
+    println!("{:#?}", ast_vec);
 
     Operation {
         a: OperationPrimitive::Number { val: 4 },
@@ -80,26 +97,35 @@ fn pair_to_operation<'a>(pair: &Pair<'a, Rule>) -> Operation {
     }
 }
 
-fn merge_operation_primitives(a: OperationPrimitive, b: OperationPrimitive) -> (Operator, OperationPrimitive) {
+fn merge_operation_primitives(
+    a: &OperationPrimitive,
+    b: &OperationPrimitive,
+) -> OperationPrimitive {
     match b {
         OperationPrimitive::Operation { val: b_op } => match a {
             OperationPrimitive::Number { val: a_num } => {
-                return (Operator::Add, OperationPrimitive::Operation {
+                return OperationPrimitive::Operation {
                     val: Box::new(Operation {
-                        a: OperationPrimitive::Number { val: a_num },
-                        b: b_op.b,
+                        a: OperationPrimitive::Number { val: *a_num },
+                        b: b_op.b.to_owned(),
                         operator: b_op.operator,
                     }),
-                })
+                };
             }
             OperationPrimitive::Operation { val: a_op } => {
-                return (a_op.operator, OperationPrimitive::Operation {
+                return OperationPrimitive::Operation {
                     val: Box::new(Operation {
-                        a: a_op.b,
-                        b: b_op.b,
-                        operator: b_op.operator,
+                        a: OperationPrimitive::Number { val: 0 },
+                        b: OperationPrimitive::Operation {
+                            val: Box::new(Operation {
+                                a: a_op.b.to_owned(),
+                                b: b_op.b.to_owned(),
+                                operator: b_op.operator,
+                            }),
+                        },
+                        operator: a_op.operator,
                     }),
-                })
+                }
             }
         },
         OperationPrimitive::Number { .. } => panic!("b must be a operation"),
@@ -119,7 +145,7 @@ mod tests {
                 operator: Operator::Add,
             }),
         };
-        let (op, merged) = merge_operation_primitives(a, b);
+        let merged = merge_operation_primitives(&a, &b);
         let expected = OperationPrimitive::Operation {
             val: Box::new(Operation {
                 a: OperationPrimitive::Number { val: 4 },
@@ -128,7 +154,6 @@ mod tests {
             }),
         };
         assert_eq!(merged, expected);
-        assert_eq!(op, Operator::Add);
 
         let a2 = OperationPrimitive::Operation {
             val: Box::new(Operation {
@@ -144,15 +169,20 @@ mod tests {
                 operator: Operator::Mul,
             }),
         };
-        let (op2, merged2) = merge_operation_primitives(a2, b2);
+        let merged2 = merge_operation_primitives(&a2, &b2);
         let expected2 = OperationPrimitive::Operation {
             val: Box::new(Operation {
-                a: OperationPrimitive::Number { val: 4 },
-                b: OperationPrimitive::Number { val: 2 },
-                operator: Operator::Mul,
+                a: OperationPrimitive::Number { val: 0 },
+                b: OperationPrimitive::Operation {
+                    val: Box::new(Operation {
+                        a: OperationPrimitive::Number { val: 4 },
+                        b: OperationPrimitive::Number { val: 2 },
+                        operator: Operator::Mul,
+                    }),
+                },
+                operator: Operator::Sub,
             }),
         };
         assert_eq!(merged2, expected2);
-        assert_eq!(op2, Operator::Sub);
     }
 }
