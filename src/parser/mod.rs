@@ -32,34 +32,44 @@ pub fn parse_input(input: &str) -> Operation {
         }
     }
 
-
     for (i, op) in ast_vec.clone().iter().enumerate() {
-        match op {
-            OperationPrimitive::Operation { val } => {
-                if val.operator == Operator::Div || val.operator == Operator::Mul {
-                    let previous_operation = &ast_vec[i - 1];
-                    let merged_operators = merge_operation_primitives(
-                        previous_operation,
-                        &OperationPrimitive::Operation {
-                            val: val.to_owned(),
-                        },
-                    );
-                    let mut new_vec = ast_vec.clone();
-                    new_vec.splice(i-1..i+1, vec![merged_operators]);
-                    ast_vec = new_vec;
-
-                }
+        if let OperationPrimitive::Operation { val } = op {
+            if val.operator == Operator::Div || val.operator == Operator::Mul {
+                merge_ast_vec_operation_primitives(&mut ast_vec, i);
             }
-            OperationPrimitive::Number { .. } => ()
+        }
+    }
+    for (i, op) in ast_vec.clone().iter().enumerate() {
+        if let OperationPrimitive::Operation { val } = op {
+            if val.operator == Operator::Add || val.operator == Operator::Sub {
+                merge_ast_vec_operation_primitives(&mut ast_vec, i);
+            }
         }
     }
 
-    println!("{:#?}", ast_vec);
+    if let OperationPrimitive::Operation { val } = &ast_vec[0] {
+        return Operation {
+            a: val.a.to_owned(),
+            b: val.b.to_owned(),
+            operator: val.operator
+        };
+    } else {
+        unreachable!();
+    }
+}
 
-    Operation {
-        a: OperationPrimitive::Number { val: 4 },
-        b: OperationPrimitive::Number { val: 8 },
-        operator: Operator::Add,
+fn merge_ast_vec_operation_primitives(ast_vec: &mut Vec<OperationPrimitive>, item_index: usize) {
+    let op = &ast_vec[item_index];
+
+    if let OperationPrimitive::Operation { val } = op {
+        let previous_item = &ast_vec[item_index - 1];
+        let merged_operators = merge_operation_primitives(
+            previous_item,
+            &OperationPrimitive::Operation {
+                val: val.to_owned(),
+            },
+        );
+        ast_vec.splice(item_index - 1..item_index + 1, vec![merged_operators]);
     }
 }
 
