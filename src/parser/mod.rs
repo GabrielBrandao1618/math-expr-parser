@@ -188,8 +188,14 @@ mod tests {
         let merged = merge_operation_primitives(&a, &b);
         let expected = OperationPrimitive::Operation {
             val: Box::new(Operation {
-                a: OperationPrimitive::Number { val: 4 },
-                b: OperationPrimitive::Number { val: 10 },
+                a: OperationPrimitive::Number { val: 0 },
+                b: OperationPrimitive::Operation {
+                    val: Box::new(Operation {
+                        a: OperationPrimitive::Number { val: 4 },
+                        b: OperationPrimitive::Number { val: 10 },
+                        operator: Operator::Add,
+                    }),
+                },
                 operator: Operator::Add,
             }),
         };
