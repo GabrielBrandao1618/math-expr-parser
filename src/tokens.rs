@@ -4,6 +4,7 @@ pub enum Operator {
     Sub,
     Mul,
     Div,
+    Pow
 }
 
 #[derive(PartialEq, Debug, Clone)]

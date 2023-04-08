@@ -20,10 +20,21 @@ pub fn resolve_operation(operation: &Operation) -> i64 {
         }
     }
     match operation.operator {
-        Operator::Add => return a + b,
-        Operator::Sub => return a - b,
-        Operator::Mul => return a * b,
-        Operator::Div => return a / b,
+        Operator::Add => {
+            return a + b;
+        }
+        Operator::Sub => {
+            return a - b;
+        }
+        Operator::Mul => {
+            return a * b;
+        }
+        Operator::Div => {
+            return a / b;
+        }
+        Operator::Pow => {
+            return a.pow(b as u32);
+        }
     }
 }
 
@@ -72,5 +83,15 @@ mod tests {
             operator: Operator::Add,
         };
         assert_eq!(resolve_operation(&op), 32);
+    }
+
+    #[test]
+    fn test_power() {
+        let op = Operation {
+            a: OperationPrimitive::Number { val: 2 },
+            b: OperationPrimitive::Number { val: 3 },
+            operator: Operator::Pow,
+        };
+        assert_eq!(resolve_operation(&op), 8);
     }
 }

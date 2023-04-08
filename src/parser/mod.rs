@@ -28,11 +28,24 @@ pub fn parse_input(input: &str) -> Operation {
                 };
                 ast_vec.push(operation_ast);
             }
+            Rule::Expr => {
+                let parsed = parse_input(pair.as_str());
+                return parsed;
+            }
             _ => (),
         }
     }
 
     while ast_vec.len() > 1 {
+        for i in 1..ast_vec.len() {
+            let op = &ast_vec[i];
+            if let OperationPrimitive::Operation { val } = op {
+                if val.operator == Operator::Pow {
+                    merge_ast_vec_operation_primitives(&mut ast_vec, i);
+                    break;
+                }
+            }
+        }
         for i in 1..ast_vec.len() {
             let op = &ast_vec[i];
             if let OperationPrimitive::Operation { val } = op {
@@ -80,12 +93,13 @@ fn merge_ast_vec_operation_primitives(ast_vec: &mut Vec<OperationPrimitive>, ite
 }
 
 fn pair_to_operator<'a>(pair: &Pair<'a, Rule>) -> Operator {
-    let str_operator = pair.clone().into_inner().next().unwrap().as_str();
-    match str_operator {
-        "+" => Operator::Add,
-        "-" => Operator::Sub,
-        "*" => Operator::Mul,
-        "/" => Operator::Div,
+    let operator = pair.clone().into_inner().next().unwrap();
+    match operator.as_rule() {
+        Rule::Add => Operator::Add,
+        Rule::Sub => Operator::Sub,
+        Rule::Mul => Operator::Mul,
+        Rule::Div => Operator::Div,
+        Rule::Pow => Operator::Pow,
         _ => unreachable!(),
     }
 }

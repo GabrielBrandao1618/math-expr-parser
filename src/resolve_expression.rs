@@ -13,32 +13,29 @@ mod tests {
 
     #[test]
     fn test_sum() {
-        let expected = 10;
-        let result = resolve_expression("4 + 2 * 3");
-        assert_eq!(expected, result);
+        assert_eq!(resolve_expression("4 + 2 * 3"), 10);
     }
     #[test]
     fn test_sub() {
-        let expected = 20;
-        let result = resolve_expression("10 + 20 - 10");
-        assert_eq!(expected, result);
+        assert_eq!(resolve_expression("10 + 20 - 10"), 20);
     }
     #[test]
     fn test_div() {
-        let expected = 2;
-        let result = resolve_expression("8 / 2 / 2");
-        assert_eq!(expected, result);
+        assert_eq!(resolve_expression("8 / 2 / 2"), 2);
     }
     #[test]
     fn test_mul() {
-        let expected = 7;
-        let result = resolve_expression("5 * 2 - 3");
-        assert_eq!(expected, result);
+        assert_eq!(resolve_expression("5 * 2 - 3"), 7);
     }
     #[test]
     fn test_sub_expression() {
-        let expected = 5;
-        let result = resolve_expression("10 - (4 + 1)");
-        assert_eq!(expected, result);
+        assert_eq!(resolve_expression("10 - (4 + 1)"), 5);
+    }
+
+    #[test]
+    fn test_power_expression() {
+        assert_eq!(resolve_expression("2 + 2 ^ 2 - 2"), 4);
+        assert_eq!(resolve_expression("2 + 2 ^ (2 - 2)"), 3);
+        assert_eq!(resolve_expression("(2 + 2) ^ 2 - 2"), 14);
     }
 }
