@@ -34,39 +34,11 @@ pub fn parse_input(input: &str) -> Operation {
                     val: Box::new(parsed),
                 });
             }
-            _ => (),
+            _ => unreachable!("{:#?}", pair),
         }
     }
 
-    while ast_vec.len() > 1 {
-        for i in 1..ast_vec.len() {
-            let op = &ast_vec[i];
-            if let OperationPrimitive::Operation { val } = op {
-                if val.operator == Operator::Pow {
-                    merge_ast_vec_operation_primitives(&mut ast_vec, i);
-                    break;
-                }
-            }
-        }
-        for i in 1..ast_vec.len() {
-            let op = &ast_vec[i];
-            if let OperationPrimitive::Operation { val } = op {
-                if val.operator == Operator::Div || val.operator == Operator::Mul {
-                    merge_ast_vec_operation_primitives(&mut ast_vec, i);
-                    break;
-                }
-            }
-        }
-        for i in 1..ast_vec.len() {
-            let op = &ast_vec[i];
-            if let OperationPrimitive::Operation { val } = op {
-                if val.operator == Operator::Add || val.operator == Operator::Sub {
-                    merge_ast_vec_operation_primitives(&mut ast_vec, i);
-                    break;
-                }
-            }
-        }
-    }
+    full_merge_ast_vec_operation_primitives(&mut ast_vec);
 
     if let OperationPrimitive::Operation { val } = &ast_vec[0] {
         return Operation {
@@ -76,6 +48,41 @@ pub fn parse_input(input: &str) -> Operation {
         };
     } else {
         unreachable!("{:#?}", ast_vec);
+    }
+}
+
+fn full_merge_ast_vec_operation_primitives(ast_vec: &mut Vec<OperationPrimitive>) {
+    while ast_vec.len() > 1 {
+        for i in 1..ast_vec.len() {
+            let op = &ast_vec[i];
+            if let OperationPrimitive::Operation { val } = op {
+                if val.operator == Operator::Pow {
+                    merge_ast_vec_operation_primitives(ast_vec, i);
+                    full_merge_ast_vec_operation_primitives(ast_vec);
+                    break;
+                }
+            }
+        }
+        for i in 1..ast_vec.len() {
+            let op = &ast_vec[i];
+            if let OperationPrimitive::Operation { val } = op {
+                if val.operator == Operator::Div || val.operator == Operator::Mul {
+                    merge_ast_vec_operation_primitives(ast_vec, i);
+                    full_merge_ast_vec_operation_primitives(ast_vec);
+                    break;
+                }
+            }
+        }
+        for i in 1..ast_vec.len() {
+            let op = &ast_vec[i];
+            if let OperationPrimitive::Operation { val } = op {
+                if val.operator == Operator::Add || val.operator == Operator::Sub {
+                    merge_ast_vec_operation_primitives(ast_vec, i);
+                    full_merge_ast_vec_operation_primitives(ast_vec);
+                    break;
+                }
+            }
+        }
     }
 }
 

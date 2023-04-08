@@ -37,5 +37,7 @@ mod tests {
         assert_eq!(resolve_expression("2 + 2 ^ 2 - 2"), 4);
         assert_eq!(resolve_expression("2 + 2 ^ (2 - 2)"), 3);
         assert_eq!(resolve_expression("(2 + 2) ^ 2 - 2"), 14);
+        assert_eq!(resolve_expression("2 + 2 ^ 2 + 2"), 8);
+        assert_eq!(resolve_expression("2 + 2 ^ (2 + 2) ^ 2"), 258);
     }
 }
