@@ -1,10 +1,11 @@
-mod tokens;
 mod math;
 mod parser;
+mod tokens;
+mod resolve_expression;
 
-use parser::parse_input;
+use resolve_expression::resolve_expression;
 
 fn main() {
-    let operation = parse_input("1 + 5 * 4");
-    println!("{:#?}", operation);
+    let result = resolve_expression("1 + 2 + 3");
+    println!("{}", result);
 }

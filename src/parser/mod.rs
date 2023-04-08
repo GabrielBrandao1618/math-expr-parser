@@ -32,17 +32,23 @@ pub fn parse_input(input: &str) -> Operation {
         }
     }
 
-    for (i, op) in ast_vec.clone().iter().enumerate() {
-        if let OperationPrimitive::Operation { val } = op {
-            if val.operator == Operator::Div || val.operator == Operator::Mul {
-                merge_ast_vec_operation_primitives(&mut ast_vec, i);
+    while ast_vec.len() > 1 {
+        for i in 1..ast_vec.len() {
+            let op = &ast_vec[i];
+            if let OperationPrimitive::Operation { val } = op {
+                if val.operator == Operator::Div || val.operator == Operator::Mul {
+                    merge_ast_vec_operation_primitives(&mut ast_vec, i);
+                    break;
+                }
             }
         }
-    }
-    for (i, op) in ast_vec.clone().iter().enumerate() {
-        if let OperationPrimitive::Operation { val } = op {
-            if val.operator == Operator::Add || val.operator == Operator::Sub {
-                merge_ast_vec_operation_primitives(&mut ast_vec, i);
+        for i in 1..ast_vec.len() {
+            let op = &ast_vec[i];
+            if let OperationPrimitive::Operation { val } = op {
+                if val.operator == Operator::Add || val.operator == Operator::Sub {
+                    merge_ast_vec_operation_primitives(&mut ast_vec, i);
+                    break;
+                }
             }
         }
     }
@@ -51,10 +57,10 @@ pub fn parse_input(input: &str) -> Operation {
         return Operation {
             a: val.a.to_owned(),
             b: val.b.to_owned(),
-            operator: val.operator
+            operator: val.operator,
         };
     } else {
-        unreachable!();
+        unreachable!("{:#?}", ast_vec);
     }
 }
 
@@ -98,12 +104,30 @@ fn pair_to_operation<'a>(pair: &Pair<'a, Rule>) -> Operation {
     let parsed_operator = pair_to_operator(&operator);
 
     let num = pair_inner.next().unwrap();
-    let parsed_num = pair_to_number(&num);
-    // TODO: handle sub expressions recursively
-    Operation {
-        a: OperationPrimitive::Number { val: 0 },
-        b: OperationPrimitive::Number { val: parsed_num },
-        operator: parsed_operator,
+    match num.as_rule() {
+        Rule::Number => {
+            let parsed_num = pair_to_number(&num);
+            return Operation {
+                a: OperationPrimitive::Number { val: 0 },
+                b: OperationPrimitive::Number { val: parsed_num },
+                operator: parsed_operator,
+            };
+        }
+        Rule::Expr => {
+            let sub_operation = parse_input(num.as_str());
+            return Operation {
+                a: OperationPrimitive::Number { val: 0 },
+                b: OperationPrimitive::Operation {
+                    val: Box::new(Operation {
+                        a: sub_operation.a,
+                        b: sub_operation.b,
+                        operator: sub_operation.operator,
+                    }),
+                },
+                operator: parsed_operator,
+            };
+        }
+        _ => unreachable!(),
     }
 }
 
@@ -116,11 +140,17 @@ fn merge_operation_primitives(
             OperationPrimitive::Number { val: a_num } => {
                 return OperationPrimitive::Operation {
                     val: Box::new(Operation {
-                        a: OperationPrimitive::Number { val: *a_num },
-                        b: b_op.b.to_owned(),
-                        operator: b_op.operator,
+                        a: OperationPrimitive::Number { val: 0 },
+                        b: OperationPrimitive::Operation {
+                            val: Box::new(Operation {
+                                a: OperationPrimitive::Number { val: *a_num },
+                                b: b_op.b.to_owned(),
+                                operator: b_op.operator,
+                            }),
+                        },
+                        operator: Operator::Add,
                     }),
-                };
+                }
             }
             OperationPrimitive::Operation { val: a_op } => {
                 return OperationPrimitive::Operation {
