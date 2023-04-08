@@ -30,7 +30,9 @@ pub fn parse_input(input: &str) -> Operation {
             }
             Rule::Expr => {
                 let parsed = parse_input(pair.as_str());
-                return parsed;
+                ast_vec.push(OperationPrimitive::Operation {
+                    val: Box::new(parsed),
+                });
             }
             _ => (),
         }
