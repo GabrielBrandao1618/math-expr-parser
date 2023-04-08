@@ -2,10 +2,15 @@ mod math;
 mod parser;
 mod tokens;
 mod resolve_expression;
+mod cli;
+
+use clap::Parser;
+use cli::Cli;
 
 use resolve_expression::resolve_expression;
 
 fn main() {
-    let result = resolve_expression("1 + 2 + 3");
+    let args = Cli::parse();
+    let result = resolve_expression(&args.expression);
     println!("{}", result);
 }
