@@ -9,7 +9,7 @@ pub enum Operator {
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum OperationPrimitive {
-    Int(i64),
+    Number(f64),
     Operation(Box<Operation>),
 }
 

@@ -18,7 +18,7 @@ pub fn parse_input(input: &str) -> Operation {
         match pair.as_rule() {
             Rule::Number => {
                 let parsed = pair_to_number(&pair);
-                let ast_parsed = OperationPrimitive::Int(parsed);
+                let ast_parsed = OperationPrimitive::Number(parsed);
                 ast_vec.push(ast_parsed);
             }
             Rule::Operation => {
@@ -106,7 +106,7 @@ fn pair_to_operator<'a>(pair: &Pair<'a, Rule>) -> Operator {
         _ => unreachable!(),
     }
 }
-fn pair_to_number<'a>(pair: &Pair<'a, Rule>) -> i64 {
+fn pair_to_number<'a>(pair: &Pair<'a, Rule>) -> f64 {
     match pair.as_rule() {
         Rule::Number => {
             return pair.as_str().parse().unwrap();
@@ -125,15 +125,15 @@ fn pair_to_operation<'a>(pair: &Pair<'a, Rule>) -> Operation {
         Rule::Number => {
             let parsed_num = pair_to_number(&num);
             return Operation {
-                a: OperationPrimitive::Int(0),
-                b: OperationPrimitive::Int(parsed_num),
+                a: OperationPrimitive::Number(0.0),
+                b: OperationPrimitive::Number(parsed_num),
                 operator: parsed_operator,
             };
         }
         Rule::Expr => {
             let sub_operation = parse_input(num.as_str());
             return Operation {
-                a: OperationPrimitive::Int(0),
+                a: OperationPrimitive::Number(0.0),
                 b: OperationPrimitive::Operation(Box::new(Operation {
                     a: sub_operation.a,
                     b: sub_operation.b,
@@ -152,11 +152,11 @@ fn merge_operation_primitives(
 ) -> OperationPrimitive {
     match b {
         OperationPrimitive::Operation(b_op) => match a {
-            OperationPrimitive::Int(a_num) => {
+            OperationPrimitive::Number(a_num) => {
                 return OperationPrimitive::Operation(Box::new(Operation {
-                    a: OperationPrimitive::Int(0),
+                    a: OperationPrimitive::Number(0.0),
                     b: OperationPrimitive::Operation(Box::new(Operation {
-                        a: OperationPrimitive::Int(*a_num),
+                        a: OperationPrimitive::Number(*a_num),
                         b: b_op.b.to_owned(),
                         operator: b_op.operator,
                     })),
@@ -165,7 +165,7 @@ fn merge_operation_primitives(
             }
             OperationPrimitive::Operation(a_op) => {
                 return OperationPrimitive::Operation(Box::new(Operation {
-                    a: OperationPrimitive::Int(0),
+                    a: OperationPrimitive::Number(0.0),
                     b: OperationPrimitive::Operation(Box::new(Operation {
                         a: a_op.b.to_owned(),
                         b: b_op.b.to_owned(),
@@ -175,7 +175,7 @@ fn merge_operation_primitives(
                 }))
             }
         },
-        OperationPrimitive::Int { .. } => panic!("b must be a operation"),
+        OperationPrimitive::Number { .. } => panic!("b must be a operation"),
     }
 }
 
@@ -184,18 +184,18 @@ mod tests {
     use super::*;
     #[test]
     fn test_merge_operation_primitives() {
-        let a = OperationPrimitive::Int(4);
+        let a = OperationPrimitive::Number(4.0);
         let b = OperationPrimitive::Operation(Box::new(Operation {
-            a: OperationPrimitive::Int(0),
-            b: OperationPrimitive::Int(10),
+            a: OperationPrimitive::Number(0.0),
+            b: OperationPrimitive::Number(10.0),
             operator: Operator::Add,
         }));
         let merged = merge_operation_primitives(&a, &b);
         let expected = OperationPrimitive::Operation(Box::new(Operation {
-            a: OperationPrimitive::Int(0),
+            a: OperationPrimitive::Number(0.0),
             b: OperationPrimitive::Operation(Box::new(Operation {
-                a: OperationPrimitive::Int(4),
-                b: OperationPrimitive::Int(10),
+                a: OperationPrimitive::Number(4.0),
+                b: OperationPrimitive::Number(10.0),
                 operator: Operator::Add,
             })),
             operator: Operator::Add,
@@ -203,21 +203,21 @@ mod tests {
         assert_eq!(merged, expected);
 
         let a2 = OperationPrimitive::Operation(Box::new(Operation {
-            a: OperationPrimitive::Int(0),
-            b: OperationPrimitive::Int(4),
+            a: OperationPrimitive::Number(0.0),
+            b: OperationPrimitive::Number(4.0),
             operator: Operator::Sub,
         }));
         let b2 = OperationPrimitive::Operation(Box::new(Operation {
-            a: OperationPrimitive::Int(0),
-            b: OperationPrimitive::Int(2),
+            a: OperationPrimitive::Number(0.0),
+            b: OperationPrimitive::Number(2.0),
             operator: Operator::Mul,
         }));
         let merged2 = merge_operation_primitives(&a2, &b2);
         let expected2 = OperationPrimitive::Operation(Box::new(Operation {
-            a: OperationPrimitive::Int(0),
+            a: OperationPrimitive::Number(0.0),
             b: OperationPrimitive::Operation(Box::new(Operation {
-                a: OperationPrimitive::Int(4),
-                b: OperationPrimitive::Int(2),
+                a: OperationPrimitive::Number(4.0),
+                b: OperationPrimitive::Number(2.0),
                 operator: Operator::Mul,
             })),
             operator: Operator::Sub,
