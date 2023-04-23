@@ -4,13 +4,13 @@ pub enum Operator {
     Sub,
     Mul,
     Div,
-    Pow
+    Pow,
 }
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum OperationPrimitive {
-    Number { val: i64 },
-    Operation { val: Box<Operation> },
+    Int(i64),
+    Operation(Box<Operation>),
 }
 
 #[derive(Debug, PartialEq, Clone)]

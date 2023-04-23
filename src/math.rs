@@ -4,18 +4,18 @@ pub fn resolve_operation(operation: &Operation) -> i64 {
     let a: i64;
     let b: i64;
     match &operation.a {
-        OperationPrimitive::Number { val } => {
+        OperationPrimitive::Int(val) => {
             a = *val;
         }
-        OperationPrimitive::Operation { val } => {
+        OperationPrimitive::Operation(val) => {
             a = resolve_operation(&val);
         }
     }
     match &operation.b {
-        OperationPrimitive::Number { val } => {
+        OperationPrimitive::Int(val) => {
             b = *val;
         }
-        OperationPrimitive::Operation { val } => {
+        OperationPrimitive::Operation(val) => {
             b = resolve_operation(&val);
         }
     }
@@ -45,26 +45,26 @@ mod tests {
     #[test]
     fn test_operators() {
         let mult = Operation {
-            a: OperationPrimitive::Number { val: 2 },
-            b: OperationPrimitive::Number { val: 2 },
+            a: OperationPrimitive::Int(2),
+            b: OperationPrimitive::Int(2),
             operator: Operator::Mul,
         };
         assert_eq!(resolve_operation(&mult), 4);
         let div = Operation {
-            a: OperationPrimitive::Number { val: 2 },
-            b: OperationPrimitive::Number { val: 2 },
+            a: OperationPrimitive::Int(2),
+            b: OperationPrimitive::Int(2),
             operator: Operator::Div,
         };
         assert_eq!(resolve_operation(&div), 1);
         let add = Operation {
-            a: OperationPrimitive::Number { val: 2 },
-            b: OperationPrimitive::Number { val: 2 },
+            a: OperationPrimitive::Int(2),
+            b: OperationPrimitive::Int(2),
             operator: Operator::Add,
         };
         assert_eq!(resolve_operation(&add), 4);
         let sub = Operation {
-            a: OperationPrimitive::Number { val: 2 },
-            b: OperationPrimitive::Number { val: 2 },
+            a: OperationPrimitive::Int(2),
+            b: OperationPrimitive::Int(2),
             operator: Operator::Sub,
         };
         assert_eq!(resolve_operation(&sub), 0);
@@ -72,14 +72,12 @@ mod tests {
     #[test]
     fn test_sub_expressions() {
         let op = Operation {
-            a: OperationPrimitive::Number { val: 4 },
-            b: OperationPrimitive::Operation {
-                val: Box::new(Operation {
-                    a: OperationPrimitive::Number { val: 7 },
-                    b: OperationPrimitive::Number { val: 4 },
-                    operator: Operator::Mul,
-                }),
-            },
+            a: OperationPrimitive::Int(4),
+            b: OperationPrimitive::Operation(Box::new(Operation {
+                a: OperationPrimitive::Int(7),
+                b: OperationPrimitive::Int(4),
+                operator: Operator::Mul,
+            })),
             operator: Operator::Add,
         };
         assert_eq!(resolve_operation(&op), 32);
@@ -88,8 +86,8 @@ mod tests {
     #[test]
     fn test_power() {
         let op = Operation {
-            a: OperationPrimitive::Number { val: 2 },
-            b: OperationPrimitive::Number { val: 3 },
+            a: OperationPrimitive::Int(2),
+            b: OperationPrimitive::Int(3),
             operator: Operator::Pow,
         };
         assert_eq!(resolve_operation(&op), 8);
